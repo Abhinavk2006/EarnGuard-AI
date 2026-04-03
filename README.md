@@ -197,19 +197,18 @@ This enables:
 
 ---
 
-# 👥 Team
+## 👥 Team
 
-**Team Leader:**
-👉 *BALASRISABHARI B*
+**Team Leader:**  
+BALASRISABHARI B  
 
-**Team Members:**
-👉 *ABHINAV K*
-👉 *PRAJEEN S*
----
-
-# 🏁 Project
-
-**Project Title:**
-👉 **EARNGUARD AI – Context-Aware Income Protection for Gig Workers**
+**Team Members:**  
+ABHINAV K  
+PRAJEEN S  
 
 ---
+
+## 📌 Project
+
+**Project Title:**  
+EARNGUARD AI – Context-Aware Income Protection for Gig Workers
