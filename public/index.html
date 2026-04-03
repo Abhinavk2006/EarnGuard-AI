@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EarnGuard AI Dashboard</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-container" class="fullscreen flex-center bg-animated">
+        <div class="card login-card fade-in shadow-xl">
+            <div class="logo-wrapper">
+                <div class="icon-circle bg-orange-light text-orange">
+                    <i class="fa-solid fa-motorcycle fa-2x"></i>
+                </div>
+                <h1>EarnGuard AI</h1>
+                <p class="text-muted">Smart Income Protection for Delivery Partners</p>
+            </div>
+            
+            <form id="loginForm" onsubmit="event.preventDefault(); register();">
+                <div class="input-group">
+                    <i class="fa-solid fa-id-card"></i>
+                    <input type="text" id="workerId" placeholder="Worker ID (e.g. W123)" required>
+                </div>
+                
+                <div class="input-group">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="name" placeholder="Full Name" required>
+                </div>
+
+                <div class="input-group">
+                    <i class="fa-solid fa-phone"></i>
+                    <input type="tel" id="phone" placeholder="Phone Number" required>
+                </div>
+                
+                <div class="input-group select-group">
+                    <i class="fa-solid fa-briefcase"></i>
+                    <select id="jobType" required>
+                        <option value="" disabled selected>Select Job Type</option>
+                        <option value="Food Delivery">Food Delivery</option>
+                        <option value="Ride-Share">Ride-Share</option>
+                        <option value="Courier">Package Courier</option>
+                    </select>
+                </div>
+
+                <div class="input-group select-group">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <select id="zoneId" required>
+                        <option value="" disabled selected>Select Your City Area</option>
+                        <option value="Bangalore_Koramangala">Bangalore (High Risk - Storm Expected)</option>
+                        <option value="Mumbai_South">Mumbai (Medium Risk - Rainy)</option>
+                        <option value="Delhi_NCR">Delhi (Low Risk - Clear Weather)</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary w-100" id="loginBtn">Register / Login <i class="fa-solid fa-arrow-right ml-2"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <div id="dashboard-container" class="dashboard-layout hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar shadow-right">
+            <div class="sidebar-header">
+                <i class="fa-solid fa-shield-halved text-orange"></i>
+                <h2>EarnGuard</h2>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" class="nav-item active" onclick="switchTab('overview', this)">
+                    <i class="fa-solid fa-house"></i> Overview
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('live-map', this)">
+                    <i class="fa-solid fa-map-location-dot"></i> Live Map
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('claims-page', this)">
+                    <i class="fa-solid fa-file-invoice-dollar"></i> Claims & Payouts
+                </a>
+                <a href="#" class="nav-item" onclick="switchTab('payment-page', this)">
+                    <i class="fa-solid fa-credit-card"></i> My Plan & Payment
+                </a>
+                <a href="#" class="nav-item logout-btn" onclick="logout()">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            </nav>
+
+            <div class="user-profile">
+                <div class="avatar"><i class="fa-solid fa-user"></i></div>
+                <div class="user-info">
+                    <strong id="sidebarName">--</strong>
+                    <span id="sidebarId">--</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            
+            <!-- OVERVIEW TAB -->
+            <section id="tab-overview" class="tab-pane active fade-in">
+                <header class="section-header">
+                    <div>
+                        <h1>Hello, <span id="welcomeName">Partner</span>! 👋</h1>
+                        <p class="subtitle text-muted">Here is your daily summary.</p>
+                    </div>
+                </header>
+
+                <div class="metrics-grid mb-4">
+                    <div class="metric-card card shadow-sm">
+                        <div class="metric-icon bg-green-light text-green"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="metric-data">
+                            <p>Wallet Balance</p>
+                            <h2>₹<span id="overviewWallet">0</span></h2>
+                        </div>
+                    </div>
+                    <div class="metric-card card shadow-sm">
+                        <div class="metric-icon bg-orange-light text-orange"><i class="fa-solid fa-triangle-exclamation"></i></div>
+                        <div class="metric-data">
+                            <p>Dynamic Risk Profiler</p>
+                            <h2 id="overviewRisk">--</h2>
+                        </div>
+                    </div>
+                    <div class="metric-card card shadow-sm">
+                        <div class="metric-icon bg-blue-light text-blue"><i class="fa-solid fa-file-shield"></i></div>
+                        <div class="metric-data">
+                            <p>Total Weekly Premium</p>
+                            <h2>₹<span id="overviewPremium">0</span></h2>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2.2: Financial Ledgers -->
+                <div class="card shadow-sm p-4 mb-4" style="border-left: 4px solid var(--blue);">
+                    <div class="d-flex" style="justify-content: space-between; align-items: center;">
+                        <h3>Financial Protection Status</h3>
+                        <button class="btn btn-outline-primary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="downloadStatement()">
+                            <i class="fa-solid fa-file-pdf"></i> Download PDF Statement
+                        </button>
+                    </div>
+                    <div class="d-flex gap-4 mt-3">
+                        <div>
+                            <span class="text-muted text-sm">Active Coverage</span>
+                            <div id="policyIdVal" class="font-bold">--</div>
+                        </div>
+                        <div>
+                            <span class="text-muted text-sm">Policy Type</span>
+                            <div id="policyTypeVal" class="font-bold">--</div>
+                        </div>
+                        <div>
+                            <span class="text-muted text-sm">Status</span>
+                            <div id="policyStatusVal" class="text-green font-bold">--</div>
+                        </div>
+                        <div>
+                            <span class="text-muted text-sm">-</span><br>
+                            <button id="activatePolicyBtn" class="btn btn-sm btn-primary hidden" onclick="payPremium()">Pay Premium to Activate</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Phase 2: Inbox & Automations -->
+                <div class="card shadow-sm p-4 mb-4">
+                    <div class="d-flex" style="justify-content: space-between;">
+                        <h3>System Automation Inbox</h3>
+                        <button class="btn btn-outline-primary" style="padding: 5px 10px; font-size: 0.8rem;" onclick="triggerAutomations()">
+                            <i class="fa-solid fa-bolt"></i> Run System Cron
+                        </button>
+                    </div>
+                    <p class="text-muted mb-3 text-sm">Real-time alerts triggered by background automated processes.</p>
+                    <div id="automationInbox" class="log-box list-scroll" style="height: 150px;">
+                        <div class="log-item text-muted">No alerts. Run the system cron to mock scheduled API fetching.</div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm p-4">
+                    <h3>Current Environmental Conditions</h3>
+                    <p class="text-muted mb-4">Live weather and order demand data for your selected area.</p>
+                    
+                    <div class="d-flex gap-4">
+                        <div class="info-box flex-1">
+                            <span class="info-label">Weather Status</span>
+                            <strong id="envWeather" class="info-value text-blue">AWAITING</strong>
+                        </div>
+                        <div class="info-box flex-1">
+                            <span class="info-label">Order Demand Drop</span>
+                            <strong id="envDrop" class="info-value text-red">--%</strong>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- LIVE MAP TAB -->
+            <section id="tab-live-map" class="tab-pane hidden fade-in">
+                <header class="section-header">
+                    <h1>Live Map & Tracking</h1>
+                    <p class="subtitle">Track your delivery movements and build your activity score.</p>
+                </header>
+
+                <div class="map-layout">
+                    <!-- Leaflet Map Container -->
+                    <div class="card shadow-sm map-card p-0">
+                        <div id="activityMap"></div>
+                    </div>
+                    
+                    <!-- Controls & Logs -->
+                    <div class="controls-panel card shadow-sm">
+                        <h3>Map Controls</h3>
+                        <p class="text-muted text-sm mb-3">Click 'Start Shift' to act like a real driver collecting GPS points.</p>
+                        
+                        <div class="btn-group-vertical">
+                            <button class="btn btn-outline-primary" onclick="triggerPing(false)">
+                                <i class="fa-solid fa-location-arrow"></i> Add Single Location Ping
+                            </button>
+                            <button class="btn btn-primary" id="autoPingBtn" onclick="toggleAutoPing()">
+                                <i class="fa-solid fa-play"></i> Start Shift (Auto-Movement)
+                            </button>
+                            
+                            <hr class="my-3 border-gray">
+                            <p class="text-xs text-muted mb-2 text-center">Test our Fraud System</p>
+                            
+                            <button class="btn btn-danger" onclick="triggerPing(true)">
+                                <i class="fa-solid fa-bug"></i> Add Fake GPS Ping (Fraud)
+                            </button>
+                        </div>
+
+                        <h4 class="mt-4">Recent Activity</h4>
+                        <div id="terminalOutput" class="log-box list-scroll">
+                            <div class="log-item">Waiting for your first location...</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- CLAIMS TAB -->
+            <section id="tab-claims-page" class="tab-pane hidden fade-in">
+                <header class="section-header">
+                    <div>
+                        <h1>Claims & Payouts</h1>
+                        <p class="subtitle text-muted">Check your score and claim lost income.</p>
+                    </div>
+                    <button class="btn btn-primary btn-lg shadow-sm" id="calcIlcsBtn" onclick="calculateIlcsAndDrawGraph()">
+                        <i class="fa-solid fa-calculator"></i> Check My Score
+                    </button>
+                </header>
+
+                <div class="ilcs-grid mt-4">
+                    <!-- Graph -->
+                    <div class="card shadow-sm text-center">
+                        <h3 class="mb-3">Score Breakdown (Target: 60)</h3>
+                        <div class="canvas-wrapper">
+                            <canvas id="ilcsChart"></canvas>
+                        </div>
+                        <h2 class="mt-4">Total Score: <span id="finalScore" class="text-orange">--</span> / 100</h2>
+                        <p class="text-sm text-muted">If your score is 60 or above, you get paid!</p>
+                    </div>
+
+                    <!-- Actions & Terminal -->
+                    <div class="card shadow-sm d-flex-col">
+                        <h3>Claim Status</h3>
+                        <p class="text-muted text-sm mb-4">We check for fake GPS jumps and confirm your final score.</p>
+                        
+                        <div id="claimResultTerminal" class="log-box mb-4 flex-grow-1">
+                            <div class="log-item">Ready to process claim...</div>
+                        </div>
+
+                        <div class="text-center mt-auto">
+                            <button class="btn btn-success btn-huge w-100 shadow-sm" id="fileClaimBtn" onclick="fileClaim()" disabled>
+                                <i class="fa-solid fa-hand-holding-dollar"></i> Get My Payout Now
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAYMENT & SUBSCRIPTION TAB -->
+            <section id="tab-payment-page" class="tab-pane hidden fade-in">
+                <header class="section-header">
+                    <div>
+                        <h1>Payment & Checkout</h1>
+                        <p class="subtitle text-muted">Activate your Machine Learning assigned dynamic premium policy.</p>
+                    </div>
+                </header>
+
+                <div class="card shadow-sm p-4 mb-4" style="background:#f8fafc; border-left: 4px solid var(--blue);">
+                    <h3>Wallet Balance</h3>
+                    <h2 class="mt-2">₹<span id="checkoutWalletBalance">0</span></h2>
+                    <p id="lowBalanceWarning" class="text-red mt-2 hidden text-sm"><i class="fa-solid fa-triangle-exclamation"></i> Insufficient funds! Please recharge.</p>
+                </div>
+
+                <div class="card shadow-sm p-4">
+                    <h3>Secure Checkout</h3>
+                    <p class="text-muted mb-4">You are paying for the EarnGuard AI Parametric Policy.</p>
+                    
+                    <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px;">
+                        <span>Dynamic Plan Cost:</span>
+                        <b id="billPlanCost">₹ 0</b>
+                    </div>
+                    <div class="d-flex" style="justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 10px;">
+                        <span>Taxes & AI Platform Fee:</span>
+                        <b>₹ 0</b> <!-- Simplified -->
+                    </div>
+                    <div class="d-flex" style="justify-content: space-between; font-size: 1.2rem;">
+                        <span><b>Final Payable:</b></span>
+                        <b class="text-blue" id="billTotalCost">₹ 0</b>
+                    </div>
+
+                    <div id="paymentResult" class="text-center mt-3 font-bold"></div>
+                    <div id="billDownloadSpace" class="text-center mt-3 hidden"></div>
+
+                    <button id="payNowBtnCheckout" class="btn btn-primary w-100 mt-4 shadow-sm" style="padding: 15px; font-size: 1.1rem;" onclick="payPremium()">
+                        <i class="fa-solid fa-lock"></i> Securely Pay Now
+                    </button>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Script Links -->
+    <script src="app.js"></script>
+</body>
+</html>
