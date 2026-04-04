@@ -1,9 +1,3 @@
-Perfect — I’ll give you a **clean, professional full README content** including everything + team details at the bottom.
-
-You can **copy-paste directly into `README.md`** 👇
-
----
-
 # 📌 EARNGUARD AI – Context-Aware Income Protection for Gig Workers
 
 ## 🚀 About the Project
